@@ -1,0 +1,51 @@
+# =============================================================================
+# RaiPlaySound RSS Generator - Configurazione
+# =============================================================================
+# Tutti i valori possono essere sovrascritti da variabili d'ambiente
+# con prefisso RAIPLAYRSS_ e separatori underscore (_).
+#
+# Esempio:
+#   RAIPLAYRSS_UPSTREAM_TIMEOUT_SECS=15
+#   RAIPLAYRSS_BATCH_OUTPUT_DIR=./output
+#   RAIPLAYRSS_BATCH_URLS_FILE=urls.txt
+# =============================================================================
+
+upstream:
+  # URL base di RaiPlaySound
+  # Env: RAIPLAYRSS_UPSTREAM_BASE_URL
+  base_url: "https://www.raiplaysound.it"
+
+  # Timeout per le richieste API (secondi)
+  # Env: RAIPLAYRSS_UPSTREAM_TIMEOUT_SECS
+  timeout_secs: 10
+
+  # User-Agent per le richieste HTTP
+  # Env: RAIPLAYRSS_UPSTREAM_USER_AGENT
+  user_agent: "Mozilla/5.0 (compatible; RaiPlayRSS/1.0)"
+
+batch:
+  # Directory di output per i feed RSS generati
+  # Env: RAIPLAYRSS_BATCH_OUTPUT_DIR
+  output_dir: "./output"
+
+  # File contenente la lista di URL da processare (uno per riga)
+  # Può contenere URL completi (es. https://www.raiplaysound.it/programmi/belve)
+  # o solo il nome del programma (es. belve) e la sezione (programmi/playlist)
+  # Env: RAIPLAYRSS_BATCH_URLS_FILE
+  urls_file: "urls.txt"
+
+  # Lista di URL da processare (alternativa al file)
+  # Esempio:
+  # urls:
+  #   - "https://www.raiplaysound.it/programmi/belve"
+  #   - "https://www.raiplaysound.it/playlist/erastava"
+  # Env: RAIPLAYRSS_BATCH_URLS (JSON array)
+  # urls: []
+
+  # File template per la generazione dell'index.html
+  # Env: RAIPLAYRSS_BATCH_TEMPLATE_FILE
+  template_file: "templates/index.html.tera"
+
+  # Nome del file index.html di output
+  # Env: RAIPLAYRSS_BATCH_INDEX_FILE
+  index_file: "index.html"

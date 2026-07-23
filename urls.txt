@@ -1,0 +1,9 @@
+# RaiPlaySound URLs - un URL per riga
+# Formati accettati:
+#   https://www.raiplaysound.it/programmi/belve
+#   programmi/belve
+#   playlis/erastava
+#   belve  (default: programmi)
+
+belve
+programmi/primapagina

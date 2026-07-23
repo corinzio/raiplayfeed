@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RaiPlaySound — Feed RSS Podcast</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎙️</text></svg>">
+    <style>
+        :root {
+            --bg: #f8f9fa;
+            --text: #212529;
+            --text-muted: #6c757d;
+            --primary: #0d6efd;
+            --border: #dee2e6;
+            --shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+            --card-bg: #ffffff;
+            --rss: #ff6600;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .feeds-grid {
+            display: block;
+        }
+
+        .feed-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: row;
+            margin: 1rem;
+        }
+
+        .feed-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1);
+        }
+
+        .feed-image {
+            width: 100%;
+            height: 228px;
+            object-fit: cover;
+        }
+
+        .feed-content {
+            padding: 1.5rem;
+            flex: 1;
+        }
+
+        .feed-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.75rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .feed-description {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .feed-description.expanded {
+            -webkit-line-clamp: unset;
+        }
+
+        .expand-btn {
+            color: var(--primary);
+            background: none;
+            border: none;
+            padding: 0.25rem 0;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        .feed-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .tag {
+            background-color: #e9ecef;
+            color: var(--text-muted);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .feed-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.2rem;
+            margin-bottom: 0.5rem;
+            margin-left: 0.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+
+        .btn-rss {
+            background-color: var(--rss);
+            color: white;
+            border-color: var(--rss);
+        }
+
+        .btn-rss:hover {
+            background-color: #e65c00;
+            border-color: #d65300;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--text-muted);
+            border-color: var(--border);
+        }
+
+        .btn-outline:hover {
+            background-color: #f8f9fa;
+            color: var(--text);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .feeds-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Lista Podcast</h1>
+            <p>Elenco Podcast</p>
+        </header>
+
+        <main class="feeds-grid">
+            {% for feed in feeds %}
+            <article class="feed-card">
+                <div class="feed-head">
+                    {% if feed.image %}
+                    <img src="{{ feed.image }}" alt="{{ feed.title }}" class="feed-image" loading="lazy">
+                    {% endif %}
+                    <div class="feed-actions">
+                        <a href="{{ feed.weblink }}" class="btn btn-outline" target="_blank" rel="noopener">
+                            Rai Play Sound
+                        </a>
+                        <a href="{{ feed.rss_url }}" class="btn btn-rss">
+                            Feed
+                        </a>
+                    </div>
+                </div>
+                <div class="feed-content">
+                    <h2 class="feed-title">{{ feed.title }}</h2>
+
+                    <div class="feed-description" id="desc-{{ loop.index }}">
+                        {{ feed.description }}
+                    </div>
+
+                    <button class="expand-btn" onclick="toggleDescription('desc-{{ loop.index }}', this)" style="display: none;">Espandi...</button>
+
+                    <div class="feed-meta">
+                        {% if feed.latest_episode_date %}
+                        <span class="tag">Ultimo episodio: {{ feed.latest_episode_date }}</span>
+                        {% endif %}
+
+                        {% if feed.episode_count > 0 %}
+                        <span class="tag">{{ feed.episode_count }} episodi</span>
+                        {% endif %}
+                    </div>
+
+
+                </div>
+            </article>
+            {% endfor %}
+        </main>
+
+        <footer class="footer">
+            <p>Non affiliato a Rai o RaiPlaySound.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Funzione per verificare se un elemento è troncato
+        function isTruncated(element) {
+            return element.scrollHeight > element.clientHeight;
+        }
+
+        // Funzione per aggiornare la visibilità del pulsante
+        function updateButtonVisibility(button) {
+            const id = button.getAttribute('onclick').match(/\'([^\']+)\'/)[1];
+            const element = document.getElementById(id);
+
+            if (!element) return;
+
+            // Se l'elemento è espanso, non nascondere il pulsante
+            if (element.classList.contains('expanded')) {
+                button.style.display = 'block';
+                button.textContent = 'Riduci';
+                return;
+            }
+
+            // Mostra il pulsante solo se il testo è troncato
+            if (isTruncated(element)) {
+                button.style.display = 'block';
+                button.textContent = 'Espandi...';
+            } else {
+                button.style.display = 'none';
+            }
+        }
+
+        // Funzione per toggle espansione
+        function toggleDescription(id, button) {
+            const element = document.getElementById(id);
+            if (!element) return;
+
+            if (element.classList.contains('expanded')) {
+                element.classList.remove('expanded');
+                button.textContent = 'Espandi...';
+            } else {
+                element.classList.add('expanded');
+                button.textContent = 'Riduci';
+            }
+
+            // Aggiorna la visibilità dopo il toggle
+            updateButtonVisibility(button);
+        }
+
+        // Verifica il troncamento al caricamento della pagina
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.expand-btn');
+
+            // Verifica iniziale per tutti i pulsanti
+            buttons.forEach(button => {
+                updateButtonVisibility(button);
+            });
+
+            // Aggiungi listener per il ridimensionamento della finestra
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                // Usa un timeout per evitare troppi ricalcoli durante il ridimensionamento
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    buttons.forEach(button => {
+                        updateButtonVisibility(button);
+                    });
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>
