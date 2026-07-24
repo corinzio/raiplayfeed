@@ -8,10 +8,6 @@ Generatore di feed RSS 2.0 (con estensioni iTunes) per i podcast di **RaiPlaySou
 
 ## 🚀 Modalità di utilizzo
 
-RaiPlayFeed ora supporta **due modalità di utilizzo**:
-
-### 1. Modalità Batch (consigliata) - Generazione locale di feed RSS
-
 ```bash
 # Clona il repository
 git clone https://github.com/tuo-utente/raiplayfeed
@@ -27,10 +23,6 @@ cargo run
 # I feed RSS verranno generati nella directory ./output/
 # Apri index.html nel browser per vedere tutti i feed disponibili
 ```
-
-### 2. Modalità Server Web (legacy)
-
-La modalità server web è ancora disponibile ma non più consigliata. Per utilizzarla:
 
 ```bash
 # Avvia il server web
@@ -115,5 +107,8 @@ upstream:
 - Rate limiting non implementato (usare con rispetto)
 - Solo audio (nessun supporto video)
 - La modalità server web è deprecata in favore della modalità batch
+
+## RSS su github
+ - Output su [github-pages](https://corinzio.github.io/raiplayfeed/)
 
 **Nota**: Questo progetto non è affiliato a Rai o RaiPlaySound. Utilizza API pubbliche non documentate. Usa con responsabilità e rispetto per i termini di servizio Rai.
