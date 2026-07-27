@@ -2,8 +2,9 @@ name: Daily RSS Feed Generation
 
 on:
   schedule:
-    - cron: '30 7 * * *'  # 9:30 CET = 7:30 UTC
-  workflow_dispatch:       # Allow manual execution
+    - cron: '47 9 * * *'
+      timezone: "Europe/Rome"
+  workflow_dispatch:     
 
 permissions:
   contents: read
