@@ -2,9 +2,9 @@ name: Daily RSS Feed Generation
 
 on:
   schedule:
-    - cron: '47 9 * * *'
+    - cron: '47 8 * * *'
       timezone: "Europe/Rome"
-  workflow_dispatch:     
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -20,13 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache Cargo dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry
@@ -45,7 +45,7 @@ jobs:
           RAIPLAYRSS_BATCH_OUTPUT_DIR: ./output  # Output in ./output directory
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: output  # Deploy contents of output directory
 
