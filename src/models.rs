@@ -27,6 +27,7 @@ pub struct PodcastInfo {
     pub description: String,
     pub images: Images,
     pub image: String,
+    #[serde(default)]
     pub weblink: String,
     pub path_id: String,
     #[serde(default)]

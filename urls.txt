@@ -2,9 +2,10 @@
 # Formati accettati:
 #   https://www.raiplaysound.it/programmi/belve
 #   programmi/belve
-#   playlis/erastava
+#   playlist/erastava
 #   belve  (default: programmi)
 
+https://www.raiplaysound.it/audiolibri/preghierapercernobyl
 belve
 programmi/primapagina
 https://www.raiplaysound.it/programmi/pagina3
@@ -17,3 +18,4 @@ https://www.raiplaysound.it/programmi/lostatoparallelo
 https://www.raiplaysound.it/programmi/checkpointcharlielacadutadelmuro
 https://www.raiplaysound.it/programmi/assaltoallambasciatausa-ilprimoscontrotrairaneoccidente
 https://www.raiplaysound.it/programmi/pantagruel
+playlist/erastava

@@ -78,15 +78,15 @@ fn parse_raiplay_url(url: &str) -> Option<(String, String)> {
 
     let segments: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
     if segments.len() >= 2 {
+        // La sezione è libera (es. "programmi", "playlist", "audiolibri", ...)
+        // e viene usata solo per comporre l'URL upstream.
         let section = segments[segments.len() - 2].to_string();
-        if section == "programmi" || section == "playlist" {
-            let name = segments[segments.len() - 1].to_string();
-            return Some((section, name));
-        }
+        let name = segments[segments.len() - 1].to_string();
+        return Some((section, name));
     }
     if segments.len() == 1 {
         warn!(
-            "URL {} ha un solo segmento, impossibile determinare la sezione (programmi/playlist). Provo 'programmi' come default.",
+            "URL {} ha un solo segmento, impossibile determinare la sezione. Provo 'programmi' come default.",
             url
         );
         return Some(("programmi".to_string(), segments[0].to_string()));
@@ -104,11 +104,12 @@ fn parse_url_line(line: &str) -> Option<(String, String)> {
         return parse_raiplay_url(line);
     }
 
-    // Formato: sezione/nome (es. "programmi/belve", "playlist/erastava")
+    // Formato: sezione/nome (es. "programmi/belve", "playlist/erastava", "audiolibri/preghierapercernobyl").
+    // La sezione è libera e viene usata solo per comporre l'URL upstream.
     if let Some((section, name)) = line.split_once('/') {
         let section = section.trim().to_lowercase();
         let name = name.trim().to_string();
-        if section == "programmi" || section == "playlist" {
+        if !section.is_empty() && !name.is_empty() {
             return Some((section, name));
         }
     }
@@ -472,10 +473,7 @@ fn card_to_rss_item(card: &Card, config: &AppConfig) -> Result<Option<RssItem>, 
         Some(a) if a.url.starts_with("http") => a.url.clone(),
         Some(a) => format!("{}{}", base_url_str, a.url),
         None => {
-            warn!(
-                "Card senza audio scaricabile, saltata: {}",
-                card.uniquename
-            );
+            warn!("Card senza audio scaricabile, saltata: {}", card.uniquename);
             return Ok(None);
         }
     };
