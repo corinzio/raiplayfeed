@@ -459,10 +459,25 @@ fn card_to_rss_item(card: &Card, config: &AppConfig) -> Result<Option<RssItem>, 
     let duration_seconds = parse_duration_to_seconds(&card.duration_small_format);
     let enclosure_length = duration_seconds.map(|s| (s as u64) * 128000 / 8);
 
-    let audio_url = if card.downloadable_audio.url.starts_with("http") {
-        card.downloadable_audio.url.clone()
-    } else {
-        format!("{}{}", base_url_str, card.downloadable_audio.url)
+    // `downloadable_audio` non è sempre presente nelle card (es. "Prima pagina"):
+    // in quel caso ripieghiamo su `audio`. Se nessuno dei due è disponibile,
+    // saltiamo la card perché senza URL non c'è enclosure.
+    let audio_source = card
+        .downloadable_audio
+        .as_ref()
+        .or(Some(&card.audio))
+        .filter(|a| !a.url.is_empty());
+
+    let audio_url = match audio_source {
+        Some(a) if a.url.starts_with("http") => a.url.clone(),
+        Some(a) => format!("{}{}", base_url_str, a.url),
+        None => {
+            warn!(
+                "Card senza audio scaricabile, saltata: {}",
+                card.uniquename
+            );
+            return Ok(None);
+        }
     };
 
     let image_url = if card.image.is_empty() {

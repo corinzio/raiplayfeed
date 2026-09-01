@@ -91,7 +91,8 @@ pub struct Card {
     pub form: String,
     pub audio: Audio,
     #[serde(rename = "downloadable_audio")]
-    pub downloadable_audio: Audio,
+    #[serde(default)]
+    pub downloadable_audio: Option<Audio>,
     pub images: CardImages,
     #[serde(default, deserialize_with = "string_or_empty")]
     pub image: String,
