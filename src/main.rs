@@ -12,7 +12,7 @@ use rss::{
         ITunesOwnerBuilder,
     },
 };
-use std::collections::HashSet;
+
 use std::fs;
 use std::path::{Path, PathBuf};
 use tera::{Context, Tera};
@@ -269,14 +269,6 @@ async fn process_feed(
     config: &AppConfig,
     feed: &FeedEntry,
 ) -> Result<FeedSummary, AppError> {
-    let rss_xml = generate_rss_feed(client, config, &feed.section, &feed.program_name).await?;
-
-    let filename = format!("{}.xml", feed.program_name);
-    let output_path = PathBuf::from(&config.batch.output_dir).join(&filename);
-    fs::write(&output_path, &rss_xml)?;
-    info!("  Scritto: {}", output_path.display());
-
-    // Build summary for index
     let program_url = format!(
         "{}/{}/{}.json",
         config.upstream.base_url, feed.section, feed.program_name
@@ -284,7 +276,7 @@ async fn process_feed(
     let program_page: ProgramPage = fetch_json(client, &program_url, config).await?;
 
     let mut all_episodes = Vec::new();
-    let mut seen_guids = HashSet::new();
+    let mut seen_guids = std::collections::HashSet::new();
 
     if let Some(block) = &program_page.block {
         for card in &block.cards {
@@ -310,6 +302,8 @@ async fn process_feed(
                             }
                         }
                     }
+                } else {
+                    tracing::warn!("Failed to fetch season: {}", season_url);
                 }
             }
         }
@@ -323,6 +317,14 @@ async fn process_feed(
             .format("%d/%m/%Y")
             .to_string()
     });
+    let episode_count = all_episodes.len();
+
+    let rss_xml = build_rss_feed(&program_page.podcast_info, all_episodes, config)?;
+
+    let filename = format!("{}.xml", feed.program_name);
+    let output_path = std::path::PathBuf::from(&config.batch.output_dir).join(&filename);
+    std::fs::write(&output_path, &rss_xml)?;
+    tracing::info!("  Scritto: {}", output_path.display());
 
     let image_url = resolve_image_url(&program_page.podcast_info, config)?;
 
@@ -349,7 +351,7 @@ async fn process_feed(
         rss_url: filename,
         section: feed.section.clone(),
         latest_episode_date,
-        episode_count: all_episodes.len(),
+        episode_count,
     })
 }
 
@@ -400,57 +402,6 @@ fn generate_index(config: &AppConfig, summaries: &[FeedSummary]) -> Result<(), A
     Ok(())
 }
 
-async fn generate_rss_feed(
-    client: &Client,
-    config: &AppConfig,
-    percorso: &str,
-    program_name: &str,
-) -> Result<String, AppError> {
-    let program_url = format!(
-        "{}/{}/{}.json",
-        config.upstream.base_url, percorso, program_name
-    );
-    let program_page: ProgramPage = fetch_json(client, &program_url, config).await?;
-
-    let mut all_episodes = Vec::new();
-    let mut seen_guids = HashSet::new();
-
-    if let Some(block) = &program_page.block {
-        for card in &block.cards {
-            if let Some(item) = card_to_rss_item(card, config)? {
-                if seen_guids.insert(item.guid.clone()) {
-                    all_episodes.push(item);
-                }
-            }
-        }
-    }
-
-    if let Some(filters) = &program_page.filters {
-        for filter in filters {
-            if !filter.active {
-                let season_url = format!("{}{}", config.upstream.base_url, filter.path_id);
-                if let Ok(season_content) =
-                    fetch_json::<SeasonContent>(client, &season_url, config).await
-                {
-                    for card in season_content.cards {
-                        if let Some(item) = card_to_rss_item(&card, config)? {
-                            if seen_guids.insert(item.guid.clone()) {
-                                all_episodes.push(item);
-                            }
-                        }
-                    }
-                } else {
-                    warn!("Failed to fetch season: {}", season_url);
-                }
-            }
-        }
-    }
-
-    all_episodes.sort_by(|a, b| b.pub_date.cmp(&a.pub_date));
-
-    let rss = build_rss_feed(&program_page.podcast_info, all_episodes, config)?;
-    Ok(rss)
-}
 
 fn card_to_rss_item(card: &Card, config: &AppConfig) -> Result<Option<RssItem>, AppError> {
     let base_url_str = &config.upstream.base_url;
