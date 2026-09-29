@@ -84,11 +84,14 @@ pub struct ContentSize {
 pub struct Card {
     pub uniquename: String,
     pub title: String,
+    #[serde(default, deserialize_with = "string_or_empty")]
     pub toptitle: String,
+    #[serde(default, deserialize_with = "string_or_empty")]
     pub subtitle: String,
     #[serde(default, deserialize_with = "string_or_empty")]
     pub description: String,
     #[serde(rename = "episode_title")]
+    #[serde(default, deserialize_with = "string_or_empty")]
     pub episode_title: String,
     pub form: String,
     pub audio: Audio,
@@ -101,10 +104,13 @@ pub struct Card {
     pub weblink: String,
     pub path_id: String,
     #[serde(rename = "literal_publication_date")]
+    #[serde(default, deserialize_with = "string_or_empty")]
     pub literal_publication_date: String,
     #[serde(rename = "literal_duration")]
+    #[serde(default, deserialize_with = "string_or_empty")]
     pub literal_duration: String,
     #[serde(rename = "duration_small_format")]
+    #[serde(default, deserialize_with = "string_or_empty")]
     pub duration_small_format: String,
     #[serde(rename = "track_info")]
     pub track_info: TrackInfo,
@@ -136,6 +142,7 @@ pub struct CardImages {
 pub struct TrackInfo {
     pub date: String,
     #[serde(rename = "episode_title")]
+    #[serde(default, deserialize_with = "string_or_empty")]
     pub episode_title: String,
     #[serde(rename = "episode_number")]
     pub episode_number: String,
